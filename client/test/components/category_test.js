@@ -33,7 +33,7 @@ describe('Category', () => {
 
     it("Should allow removing category", () => {
         const wrapper = mount(<Provider store={store}>
-            <Category name={"Dummy"}/>
+            <Category id = {"dummy"} name={"Dummy"}/>
         </Provider>);
 
         expect(store.getState().categories.get("dummy").name).to.equal("Dummy");

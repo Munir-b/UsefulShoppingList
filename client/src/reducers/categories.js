@@ -68,7 +68,7 @@ function toggleItem(state, categories, categoryId, itemId) {
     if (category) {
         let item = category.items.get(itemId);
 
-        if (itemId) {
+        if (item) {
             item.have = !item.have;
 
             category.items = category.items.delete(itemId).set(itemId, item);
@@ -123,6 +123,7 @@ function cancelAddingCategory(state) {
 function collapseCategoriesEditing(state) {
     return state.categories.map((category) => {
         category.adding = false;
+        category.editing = false;
         return category
     })
 }
@@ -135,7 +136,62 @@ function startAddingCategory(state) {
     }
 }
 
-export default function categories(state = initialState, action) {
+function startEditingCategory(state, categoryId) {
+
+    return {
+        ...state,
+        categories: state.categories.map((category) => {
+
+            if (category.id === categoryId) {
+                category.editing = true;
+                category.temporaryName = category.name;
+                console.log("startEditingCategory", category.temporaryName)
+            }
+            else {
+                category.editing = false;
+            }
+
+            return category
+        })
+    }
+}
+
+function cancelEditingCategory(state) {
+    return {
+        ...state,
+        adding: false,
+        categories: collapseCategoriesEditing(state)
+    }
+}
+
+function storeCategoryName(state, categoryId, name) {
+    return {
+        ...state,
+        categories: state.categories.map((category) => {
+
+            if (category.id === categoryId) {
+                category.temporaryName = name;
+            }
+            return category
+        })
+    }
+}
+
+function saveCategoryName(state, categoryId, name) {
+    return {
+        ...state,
+        categories: state.categories.map((category) => {
+
+            if (category.id === categoryId) {
+                category.name = name;
+                category.editing = false;
+            }
+            return category
+        })
+    }
+}
+
+export default function categories(state = initialState, action = {type: ""}) {
 
     switch (action.type) {
 
@@ -159,6 +215,14 @@ export default function categories(state = initialState, action) {
             return startAddingItem(state, state.categories, action.id);
         case types.CANCEL_ADDING_ITEM:
             return cancelAddingItem(state, state.categories);
+        case types.START_EDITING_CATEGORY:
+            return startEditingCategory(state, action.id);
+        case types.CANCEL_EDITING_CATEGORY:
+            return cancelEditingCategory(state);
+        case types.STORE_CATEGORY_NAME:
+            return storeCategoryName(state, action.id, action.name);
+        case types.SAVE_CATEGORY_NAME:
+            return saveCategoryName(state, action.id, action.name);
         default:
             return state;
     }

@@ -6,12 +6,12 @@ const dummyCategory = {
     name: "Dummy",
     items: OrderedMap({
         "some_item":{
-            id: "Some item".toLowerCase(),
+            id: "some_item",
             name: "Some item",
             have:false
         },
         "other_item":{
-            id: "Other item".toLowerCase(),
+            id: "other_item",
             name: "Other item",
             have:true
         }

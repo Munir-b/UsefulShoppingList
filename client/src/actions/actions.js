@@ -40,6 +40,12 @@ export function cancelAddingCategory() {
     }
 }
 
+export function startEditingCategory(id) {
+    return {
+        type: types.START_EDITING_CATEGORY,
+        id
+    }
+}
 
 export function startAddingItem(id) {
     return {
@@ -52,6 +58,26 @@ export function cancelAddingItem(id) {
     return {
         type: types.CANCEL_ADDING_ITEM,
         id
+    }
+}
+
+export function cancelEditingCategory() {
+    return {
+        type: types.CANCEL_EDITING_CATEGORY
+    }
+}
+
+export function storeCategoryName(id, name) {
+    return {
+        type: types.STORE_CATEGORY_NAME,
+        id, name
+    }
+}
+
+export function saveCategoryName(id, name) {
+    return {
+        type: types.SAVE_CATEGORY_NAME,
+        id, name
     }
 }
 

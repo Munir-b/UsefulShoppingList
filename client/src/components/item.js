@@ -13,17 +13,21 @@ export class Item extends Component {
 
     render() {
 
-        const {id, categoryId, itemName, have} = this.props;
+        const {id, categoryId, name, have} = this.props;
 
-        return <span>
-           <label>
-               <input type="checkbox"
-                      checked={have}
-                      onChange={this.props.toggleItem.bind(this, categoryId, id)}
-               />{itemName}
-           </label>
-            <RemoveButton onClick={this.props.removeItem.bind(this, id)}/>
+        return <span className="input-group">
+
+               <label>
+                   <input type="checkbox"
+                          checked={have}
+                          onChange={this.props.toggleItem.bind(this, categoryId, id)}
+                   />{name}
+               </label>
+                <span className="input-group-btn">
                     <EditButton onClick={this.props.editItem.bind(this, id)}/>
+                    <RemoveButton onClick={this.props.removeItem.bind(this, id)}/>
+                </span>
+
         </span>
     }
 }
