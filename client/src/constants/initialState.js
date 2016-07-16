@@ -1,21 +1,24 @@
-import {List} from "immutable";
+import {List, OrderedMap} from "immutable";
+
+
+const dummyCategory = {
+    id: "Dummy".toLowerCase(),
+    name: "Dummy",
+    items: OrderedMap({
+        "some_item":{
+            id: "Some item".toLowerCase(),
+            name: "Some item",
+            have:false
+        },
+        "other_item":{
+            id: "Other item".toLowerCase(),
+            name: "Other item",
+            have:true
+        }
+    })
+};
 
 export const initialState = {
-    categories: List.of({
-        id: "Dummy".toLowerCase(),
-        name: "Dummy",
-        items: List.of(
-            {
-                id: 1,
-                name: "Some item",
-                have:false
-            },
-            {
-                id: 2,
-                name: "Other item",
-                have:true
-            }
-        )
-    }),
+    categories: OrderedMap({"dummy":dummyCategory}),
     newCategoryName: "new category"
 };

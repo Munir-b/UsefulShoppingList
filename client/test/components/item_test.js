@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { mount, shallow, render } from 'enzyme';
 import { Provider } from 'react-redux';
 
-import { List } from "immutable"
+import { List, OrderedMap } from "immutable"
 
 
 import Item from '../../src/components/item'
@@ -35,21 +35,63 @@ describe('Item', () => {
     });
 
     it('Checking unchecked item should put it at the bottom', () => {
+        let initialStore = {
+            categories: OrderedMap({
+                "dummy": {
+                    id: "Dummy".toLowerCase(),
+                    name: "Dummy",
+                    items: OrderedMap({
+                        "some_item": {
+                            id: 1,
+                            name: "Some item",
+                            have: false
+                        },
+                        "other_item": {
+                            id: 2,
+                            name: "Other item",
+                            have: true
+                        }
+                    })
+                }
+            }),
+            newCategoryName: "new category"
+        };
+        // Mock store
+        let store = createStore((function mockInitialStore(initialStore) {
+            let i = 0;
+            return function (...args) {
+
+                if (i++ == 0) {
+                    return reducer(initialStore, ...args)
+                }
+                else {
+                    return reducer(...args)
+                }
+            }
+        }(initialStore)));
+
+
         let wrapper = mount(<Provider store={store}>
             <Item name = {"Some item"} have = {false} />
         </Provider>);
 
-        expect(store.getState().categories.get(0).items.get(0).name).to.equal("Some item");
-        expect(store.getState().categories.get(0).items.get(0).have).to.equal(false);
-        expect(store.getState().categories.get(0).items.get(1).name).to.equal("Other item");
-        expect(store.getState().categories.get(0).items.get(1).have).to.equal(true);
+        let firstCategory = store.getState().categories.get("dummy");
+        let firstItem = firstCategory.items.first();
+        let lastItem = firstCategory.items.last();
+        expect(firstItem.name).to.equal("Some item");
+        expect(firstItem.have).to.equal(false);
+        expect(lastItem.name).to.equal("Other item");
+        expect(lastItem.have).to.equal(true);
 
-        wrapper.find("Item").props().toggleItem("dummy", "Some item" );
+        wrapper.find("Item").props().toggleItem("dummy", "some_item");
 
-        expect(store.getState().categories.get(0).items.get(0).name).to.equal("Other item");
-        expect(store.getState().categories.get(0).items.get(0).have).to.equal(true);
-        expect(store.getState().categories.get(0).items.get(-1).name).to.equal("Some item");
-        expect(store.getState().categories.get(0).items.get(-1).have).to.equal(true);
+        firstItem = firstCategory.items.first();
+        lastItem = firstCategory.items.last();
+
+        expect(firstItem.name).to.equal("Other item");
+        expect(firstItem.have).to.equal(true);
+        expect(lastItem.name).to.equal("Some item");
+        expect(lastItem.have).to.equal(true);
 
     });
 
