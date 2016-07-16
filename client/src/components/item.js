@@ -13,15 +13,17 @@ export class Item extends Component {
 
     render() {
 
+        const {id, categoryId, itemName, have} = this.props;
+
         return <span>
            <label>
-               <input type = "checkbox"
-                      checked = {this.props.have}
-                      onChange={this.props.toggleItem.bind(this, this.props.categoryName, this.props.name)}
-               />{this.props.name}
+               <input type="checkbox"
+                      checked={have}
+                      onChange={this.props.toggleItem.bind(this, categoryId, id)}
+               />{itemName}
            </label>
-            <RemoveButton onClick={this.props.removeItem.bind(this, this.props.name)}/>
-                    <EditButton onClick={this.props.editItem}/>
+            <RemoveButton onClick={this.props.removeItem.bind(this, id)}/>
+                    <EditButton onClick={this.props.editItem.bind(this, id)}/>
         </span>
     }
 }
@@ -29,22 +31,19 @@ export class Item extends Component {
 
 function mapStateToProps(state, ownProps) {
 
-    return {
-
-    }
+    return {}
 }
 
 function mapDispatchToProps(dispatch) {
 
     return {
-        removeItem: function() {
+        removeItem: function () {
             console.log("removeItem")
         },
-        editItem: function() {
+        editItem: function () {
             console.log("editItem")
         },
-        toggleItem: function(categoryName, name) {
-            console.log("toggleItem");
+        toggleItem: function (categoryName, name) {
             dispatch(actions.toggleItem(categoryName, name))
         }
     }

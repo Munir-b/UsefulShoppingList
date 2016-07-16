@@ -1,125 +1,86 @@
 import * as types from "../constants/actionTypes";
-import {List} from "immutable";
+import {List, OrderedMap} from "immutable";
 import {initialState} from "../constants/initialState"
 
 
+function isUnique(categories, name = "") {
 
-function isUnique(categories = List.of(), name = "") {
-
-    const newName = name.toLowerCase();
-    for (let i = 0; i < categories.size; i++) {
-        let categoryName = categories.get(i).name;
-
-        if (categoryName.toLowerCase() === newName) {
-            return false;
-        }
-    }
-
-    return true;
+    return categories.filter((category) => {
+            return category.name.toLowerCase() === name.toLowerCase()
+        }).size === 0;
 }
 
 const EMPTY = "";
+const SPACE = " ";
+const UNDERSCORE = "_";
 
-function addCategory(state, categories = List.of(), name) {
+function addCategory(state, categories, name) {
 
-    var newName = name.trim();
-    var newCategoryName = EMPTY;
+    if (name) {
+        var newName = name.trim();
+        var newCategoryName = EMPTY;
 
-    if (newName === EMPTY) {
-        console.warn("Category name cannot be empty");
-    }
-    else if (!isUnique(categories, newName)) {
-        console.warn("Category already exists: " + newName);
-        newCategoryName = newName;
+        if (newName === EMPTY) {
+            console.warn("Category name cannot be empty");
+        }
+        else if (!isUnique(categories, newName)) {
+            console.warn("Category already exists: " + newName);
+            newCategoryName = newName;
+        }
+        else {
+
+            const id = newName.toLowerCase().replace(SPACE, UNDERSCORE);
+            categories = categories.set(id, {
+                id: id,
+                name: newName,
+                items: OrderedMap()
+            })
+        }
     }
     else {
-
-        categories = categories.push({
-            id: newName.toLowerCase(),
-            name: newName,
-            items: []
-        })
+        console.warn("Empty category name", name);
     }
+
 
     return {
         ...state,
+        adding: false,
         categories,
         newCategoryName
     };
 }
 
-function removeCategory(state, categories, name) {
+function removeCategory(state, categories, id) {
 
-
-    for (let i = 0; i < categories.size; i++) {
-
-        if (categories.get(i).name === name) {
-            categories = categories.delete(i);
-            break;
-        }
-    }
+    console.log("Removing category", id);
 
     return {
         ...state,
-        categories
+        categories: categories.delete(id)
     };
 }
 
 
-function getCategoryWithIndex(categories = List.of(), categoryName = "") {
+function toggleItem(state, categories, categoryId, itemId) {
 
-    categoryName = categoryName.trim().toLowerCase();
+    let category = state.categories.get(categoryId);
 
-    for (let i = 0; i < categories.size; i++) {
-        let currentCategoryName = categories.get(i).name.toLowerCase();
+    if (category) {
+        let item = category.items.get(itemId);
 
-        if (currentCategoryName === categoryName) {
-            return {category: categories.get(i), index: i};
-        }
-    }
+        if (itemId) {
+            item.have = !item.have;
 
-    return {category: null, index: -1};
-}
+            category.items = category.items.delete(itemId).set(itemId, item);
 
-function getItemWithIndex(items = List.of(), itemName = "") {
-
-    itemName = itemName.trim().toLowerCase();
-    for (let i = 0; i < items.size; i++) {
-        let currentItemName = items.get(i).name.toLowerCase();
-
-        if (currentItemName === itemName) {
-            return {item: items.get(i), index: i};
-        }
-    }
-
-    return {item: null, index: -1};
-}
-
-
-
-function toggleItem(state, categories, categoryName, itemName) {
-
-    let categoryWithIndex = getCategoryWithIndex(categories, categoryName);
-
-    if (categoryWithIndex.index >= 0) {
-        let itemWithIndex = getItemWithIndex(categoryWithIndex.category.items, itemName);
-
-        if (itemWithIndex.index >= 0) {
-
-            itemWithIndex.item.have = !itemWithIndex.item.have;
-
-            categoryWithIndex.category.items = categoryWithIndex.category.items.delete(itemWithIndex.index).push(itemWithIndex.item);
-
-            categories = categories.delete(categoryWithIndex.index).push(categoryWithIndex.category);
-
-            console.log(categories.get(0))
+            categories = categories.delete(categoryId).set(categoryId, category);
         }
         else {
-            console.log("Item not found: ", itemName);
+            console.warn("No item: " + itemId);
         }
     }
     else {
-        console.log("Category not found: ", categoryName);
+        console.warn("No category: " + categoryId);
     }
 
     return {
@@ -128,7 +89,53 @@ function toggleItem(state, categories, categoryName, itemName) {
     }
 }
 
-export default function categories(state = initialState, action = {type:""}) {
+function startAddingItem(state, categories, categoryId) {
+
+
+    return {
+        ...state,
+        adding: false,
+        categories: categories.map((category) => {
+
+            category.adding = category.id === categoryId;
+            return category
+        })
+    }
+}
+
+function cancelAddingItem(state) {
+
+
+    return {
+        ...state,
+        categories: collapseCategoriesEditing(state)
+    }
+}
+
+function cancelAddingCategory(state) {
+    return {
+        ...state,
+        adding: false,
+        categories: collapseCategoriesEditing(state)
+    }
+}
+
+function collapseCategoriesEditing(state) {
+    return state.categories.map((category) => {
+        category.adding = false;
+        return category
+    })
+}
+
+function startAddingCategory(state) {
+    return {
+        ...state,
+        adding: true,
+        categories: collapseCategoriesEditing(state)
+    }
+}
+
+export default function categories(state = initialState, action) {
 
     switch (action.type) {
 
@@ -137,12 +144,21 @@ export default function categories(state = initialState, action = {type:""}) {
         case types.STORE_NEW_CATEGORY_NAME:
             return {
                 ...state,
+                adding: false,
                 newCategoryName: action.name
             };
         case types.REMOVE_CATEGORY:
-            return removeCategory(state, state.categories, action.name);
+            return removeCategory(state, state.categories, action.id);
         case types.TOGGLE_ITEM:
             return toggleItem(state, state.categories, action.categoryName, action.itemName);
+        case types.START_ADDING_CATEGORY:
+            return startAddingCategory(state);
+        case types.CANCEL_ADDING_CATEGORY:
+            return cancelAddingCategory(state);
+        case types.START_ADDING_ITEM:
+            return startAddingItem(state, state.categories, action.id);
+        case types.CANCEL_ADDING_ITEM:
+            return cancelAddingItem(state, state.categories);
         default:
             return state;
     }
