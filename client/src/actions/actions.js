@@ -14,10 +14,10 @@ export function storeNewCategoryName(name) {
     }
 }
 
-export function storeNewItemName(name) {
+export function storeNewItemName(categoryId, name) {
     return {
         type: types.STORE_NEW_ITEM_NAME,
-        name
+        categoryId, name
     }
 }
 
@@ -54,6 +54,13 @@ export function startAddingItem(id) {
     }
 }
 
+export function addItem(categoryId, name) {
+    return {
+        type: types.ADD_ITEM,
+        categoryId, name
+    }
+}
+
 export function cancelAddingItem(id) {
     return {
         type: types.CANCEL_ADDING_ITEM,
@@ -81,11 +88,18 @@ export function saveCategoryName(id, name) {
     }
 }
 
-export function toggleItem(categoryName, itemName) {
+export function removeItem(categoryId, id) {
+    return {
+        type: types.REMOVE_ITEM,
+        categoryId, id
+    }
+}
+
+export function toggleItem(categoryId, id) {
 
     return {
         type: types.TOGGLE_ITEM,
-        categoryName,
-        itemName
+        categoryId,
+        id
     }
 }

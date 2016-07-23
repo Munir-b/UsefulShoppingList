@@ -35,13 +35,12 @@ export class Category extends Component {
 
         const newOrSave = (adding) ?
             <InputWithOkCancel newItemName={newItemName}
-                               onOk={this.props.addItem.bind(this, newItemName)}
+                               onOk={this.props.addItem.bind(this, id, newItemName)}
                                onCancel={this.props.cancelAddingItem}
                                onChange={this.props.storeNewItemName.bind(this, id)}/>
             :
             <AddButton onClick={this.props.startAddingItem.bind(this, id)}/>;
 
-        console.log("Editing", temporaryName);
         const nameWithActions = (editing) ?
             <InputWithOkCancel newItemName={temporaryName}
                                onOk={this.props.saveCategoryName.bind(this, id, temporaryName)}
@@ -70,12 +69,21 @@ export class Category extends Component {
 function mapStateToProps(state, ownProps) {
 
     const category = state.categories.get(ownProps.id);
-    return {
-        items: ((category) ? category.items : {}),
-        temporaryName: category.temporaryName,
-        adding: category.adding,
-        editing: category.editing
+
+    if (!category) {
+        console.error("category", "mapStateToProps", "Category not found", ownProps.id)
     }
+    else {
+        return {
+            items: category.items,
+            temporaryName: category.temporaryName || category.name,
+            adding: category.adding || false,
+            editing: category.editing || false,
+            newItemName: category.newItemName || ""
+        }
+    }
+
+    return {}
 }
 
 function mapDispatchToProps(dispatch) {
@@ -95,8 +103,13 @@ function mapDispatchToProps(dispatch) {
         storeNewItemName: (id, event) => {
             dispatch(actions.storeNewItemName(id, event.target.value))
         },
-        addItem: () => {
-            console.log("addItem")
+        addItem: (categoryId, name) => {
+            if (categoryId && name) {
+                dispatch(actions.addItem(categoryId, name))
+            }
+            else {
+                console.warn("addItem", "Invalid parameters", categoryId, name);
+            }
         },
         saveCategoryName: (id, name) => {
             dispatch(actions.saveCategoryName(id, name))

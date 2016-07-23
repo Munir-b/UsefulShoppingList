@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 
 import { List, OrderedMap } from "immutable"
 
-
+import * as TestUtils from "../test_utils"
 import Item from '../../src/components/item'
 import { expect } from 'chai';
 
@@ -34,6 +34,7 @@ describe('Item', () => {
         expect(wrapper.find("input[type='checkbox']").is(":checked")).to.equal(false);
     });
 
+
     it('Checking unchecked item should put it at the bottom', () => {
         let initialStore = {
             categories: OrderedMap({
@@ -56,20 +57,9 @@ describe('Item', () => {
             }),
             newCategoryName: "new category"
         };
+
         // Mock store
-        let store = createStore((function mockInitialStore(initialStore) {
-            let i = 0;
-            return function (...args) {
-
-                if (i++ == 0) {
-                    return reducer(initialStore, ...args)
-                }
-                else {
-                    return reducer(...args)
-                }
-            }
-        }(initialStore)));
-
+        let store = TestUtils.getMockStore(initialStore);
 
         let wrapper = mount(<Provider store={store}>
             <Item name = {"Some item"} have = {false} />

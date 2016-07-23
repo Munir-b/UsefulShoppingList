@@ -24,8 +24,8 @@ export class Item extends Component {
                    />{name}
                </label>
                 <span className="input-group-btn">
-                    <EditButton onClick={this.props.editItem.bind(this, id)}/>
-                    <RemoveButton onClick={this.props.removeItem.bind(this, id)}/>
+                    <EditButton onClick={this.props.editItem.bind(this, categoryId, id)}/>
+                    <RemoveButton onClick={this.props.removeItem.bind(this, categoryId, id)}/>
                 </span>
 
         </span>
@@ -35,20 +35,30 @@ export class Item extends Component {
 
 function mapStateToProps(state, ownProps) {
 
-    return {}
+    const category = state.categories.get(ownProps.categoryId);
+    if (!category) {
+        console.error("mapStateToProps", "Category not found", ownProps.categoryId);
+    }
+    else {
+        const item = category.items.get(ownProps.id);
+        return {
+            have: item.have,
+            name: item.name
+        }
+    }
 }
 
 function mapDispatchToProps(dispatch) {
 
     return {
-        removeItem: function () {
-            console.log("removeItem")
+        removeItem: function (categoryId, id) {
+            dispatch(actions.removeItem(categoryId, id))
         },
         editItem: function () {
             console.log("editItem")
         },
-        toggleItem: function (categoryName, name) {
-            dispatch(actions.toggleItem(categoryName, name))
+        toggleItem: function (categoryId, id) {
+            dispatch(actions.toggleItem(categoryId, id))
         }
     }
 }

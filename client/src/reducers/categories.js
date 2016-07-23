@@ -177,6 +177,20 @@ function storeCategoryName(state, categoryId, name) {
     }
 }
 
+function storeNewItemName(state, categoryId, name) {
+    return {
+        ...state,
+        categories: state.categories.map((category) => {
+
+            if (category.id === categoryId) {
+                category.newItemName = name;
+            }
+            return category
+        })
+    }
+}
+
+
 function saveCategoryName(state, categoryId, name) {
     return {
         ...state,
@@ -191,6 +205,52 @@ function saveCategoryName(state, categoryId, name) {
     }
 }
 
+function removeItem(state, categoryId, id) {
+    console.log("removeItem", categoryId, id);
+    return {
+        ...state,
+        categories: state.categories.map((category) => {
+            if (category.id === categoryId) {
+                category.items = category.items.delete(id)
+            }
+
+            return category
+        })
+    }
+}
+
+function addItem(state, categoryId, itemName) {
+
+    function add(category, itemName) {
+        const itemId = itemName.trim().replace(" ", "_").toLowerCase();
+        if (itemId === "") {
+            console.warn("addItem", "Invalid item id", itemId);
+        }
+        else if (category.items.get(itemId)) {
+            console.warn("addItem", "Item id already exists", itemId);
+        }
+        else {
+            category.items = category.items.set(itemId, {
+                id: itemId,
+                name: itemName
+            });
+            category.newItemName = "";
+            category.adding = false;
+        }
+    }
+
+    return {
+        ...state,
+        categories: state.categories.map((category) => {
+            if (category.id === categoryId) {
+                add(category, itemName);
+            }
+
+            return category
+        })
+    }
+}
+
 export default function categories(state = initialState, action = {type: ""}) {
 
     switch (action.type) {
@@ -200,13 +260,12 @@ export default function categories(state = initialState, action = {type: ""}) {
         case types.STORE_NEW_CATEGORY_NAME:
             return {
                 ...state,
-                adding: false,
                 newCategoryName: action.name
             };
         case types.REMOVE_CATEGORY:
             return removeCategory(state, state.categories, action.id);
         case types.TOGGLE_ITEM:
-            return toggleItem(state, state.categories, action.categoryName, action.itemName);
+            return toggleItem(state, state.categories, action.categoryId, action.id);
         case types.START_ADDING_CATEGORY:
             return startAddingCategory(state);
         case types.CANCEL_ADDING_CATEGORY:
@@ -223,6 +282,12 @@ export default function categories(state = initialState, action = {type: ""}) {
             return storeCategoryName(state, action.id, action.name);
         case types.SAVE_CATEGORY_NAME:
             return saveCategoryName(state, action.id, action.name);
+        case types.REMOVE_ITEM:
+            return removeItem(state, action.categoryId, action.id);
+        case types.ADD_ITEM:
+            return addItem(state, action.categoryId, action.name);
+        case types.STORE_NEW_ITEM_NAME:
+            return storeNewItemName(state, action.categoryId, action.name);
         default:
             return state;
     }
