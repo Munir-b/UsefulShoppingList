@@ -92,7 +92,12 @@ function mapDispatchToProps(dispatch) {
             dispatch(actions.removeCategory(id))
         },
         editCategory: (id) => {
-            dispatch(actions.startEditingCategory(id))
+            if (id) {
+                dispatch(actions.startEditingCategory(id))
+            }
+            else {
+                console.warn("editCategory", "Invalid parameters", id);
+            }
         },
         startAddingItem: (categoryId) => {
             dispatch(actions.startAddingItem(categoryId))

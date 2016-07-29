@@ -52,7 +52,6 @@ function addCategory(state, categories, name) {
 
 function removeCategory(state, categories, id) {
 
-    console.log("Removing category", id);
 
     return {
         ...state,
@@ -145,7 +144,6 @@ function startEditingCategory(state, categoryId) {
             if (category.id === categoryId) {
                 category.editing = true;
                 category.temporaryName = category.name;
-                console.log("startEditingCategory", category.temporaryName)
             }
             else {
                 category.editing = false;
@@ -206,7 +204,7 @@ function saveCategoryName(state, categoryId, name) {
 }
 
 function removeItem(state, categoryId, id) {
-    console.log("removeItem", categoryId, id);
+
     return {
         ...state,
         categories: state.categories.map((category) => {
@@ -222,8 +220,8 @@ function removeItem(state, categoryId, id) {
 function addItem(state, categoryId, itemName) {
 
     function add(category, itemName) {
-        const itemId = itemName.trim().replace(" ", "_").toLowerCase();
-        if (itemId === "") {
+        const itemId = itemName.trim().replace(SPACE, UNDERSCORE).toLowerCase();
+        if (itemId === EMPTY) {
             console.warn("addItem", "Invalid item id", itemId);
         }
         else if (category.items.get(itemId)) {
@@ -234,7 +232,7 @@ function addItem(state, categoryId, itemName) {
                 id: itemId,
                 name: itemName
             });
-            category.newItemName = "";
+            category.newItemName = EMPTY;
             category.adding = false;
         }
     }

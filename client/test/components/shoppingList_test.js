@@ -7,14 +7,26 @@ import { List, OrderedMap } from "immutable"
 
 
 import ShoppingList from '../../src/components/shoppingList'
+import Category from '../../src/components/category'
 import { expect } from 'chai';
 
 import reducer from "../../src/reducers/categories"
-
+import * as TestUtils from "../test_utils"
 import { createStore, compose } from 'redux';
 const store = createStore(reducer);
 
 describe('Shopping List', () => {
+
+    const categoryId = "dummy";
+    const defaultInitialStore = {
+        categories: OrderedMap({
+            [categoryId]: {
+                id: categoryId,
+                name: "Dummy",
+                items: OrderedMap()
+            }
+        })
+    };
 
     it("Should open editing when adding new category", () => {
         const wrapper = mount(<Provider store={store}>
@@ -50,5 +62,27 @@ describe('Shopping List', () => {
         wrapper.find("ShoppingList").props().addCategory("New Category");
 
         expect(wrapper.find("OkButton").length).to.equal(0);
+    });
+
+    it("Should close new category name before editing", () => {
+        let store = TestUtils.getMockStore(defaultInitialStore);
+        const wrapper = mount(<Provider store={store}>
+            <ShoppingList />
+        </Provider>);
+
+        expect(wrapper.find("InputWithOkCancel").length).to.equal(0);
+        expect(wrapper.find("AddButton").length).to.equal(2);
+
+        wrapper.find("ShoppingList").props().startAdding();
+
+        expect(store.getState().adding).to.be.true;
+        expect(wrapper.find("InputWithOkCancel").length).to.equal(1);
+        expect(wrapper.find("AddButton").length).to.equal(1);
+
+        wrapper.find("Category").props().editCategory();
+
+
+        expect(wrapper.find("InputWithOkCancel").length).to.equal(1);
+        expect(wrapper.find("AddButton").length).to.equal(1);
     });
 });

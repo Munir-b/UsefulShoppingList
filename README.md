@@ -3,9 +3,9 @@ This is an example application based on React, NodeJS and MongoDB
 
 
 ## Technologies
-React
-NodeJS
-MongoDB
+* React
+* NodeJS
+* MongoDB
 
 ## Intallation
 ```console

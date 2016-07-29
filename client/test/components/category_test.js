@@ -29,6 +29,7 @@ describe('Category', () => {
     };
 
     it('Should render', () => {
+        let store = TestUtils.getMockStore(defaultInitialStore);
         const wrapper = render(<Provider store={store}>
             <Category id={"dummy"} name={"Dummy"}/>
         </Provider>);
@@ -73,13 +74,21 @@ describe('Category', () => {
     });
 
     it("Should clear new item name after adding item", () => {
-        let store = TestUtils.getMockStore(defaultInitialStore);
+        let store = TestUtils.getMockStore({
+            categories: OrderedMap({
+                [categoryId]: {
+                    id: categoryId,
+                    name: "Dummy",
+                    items: OrderedMap()
+                }
+            })
+        });
         const wrapper = mount(<Provider store={store}>
             <Category id={categoryId} name={"Dummy"}/>
         </Provider>);
 
         const categories = store.getState().categories;
-        expect(categories.get(categoryId).newItemName).to.be.undefined;
+        expect(categories.get(categoryId).newItemName).to.be.empty;
 
         const categoryProps = wrapper.find("Category").props();
         categoryProps.storeNewItemName(categoryId, {target: {value: "Dummy item"}});
@@ -90,7 +99,15 @@ describe('Category', () => {
     });
 
     it("Should close new item name after adding item", () => {
-        let store = TestUtils.getMockStore(defaultInitialStore);
+        let store = TestUtils.getMockStore({
+            categories: OrderedMap({
+                [categoryId]: {
+                    id: categoryId,
+                    name: "Dummy",
+                    items: OrderedMap()
+                }
+            })
+        });
         const wrapper = mount(<Provider store={store}>
             <Category id={categoryId} name={"Dummy"}/>
         </Provider>);
@@ -111,8 +128,17 @@ describe('Category', () => {
         expect(wrapper.find("AddButton").length).to.equal(1);
     });
 
+
     it("Should block adding item with empty name", () => {
-        let store = TestUtils.getMockStore(defaultInitialStore);
+        let store = TestUtils.getMockStore({
+            categories: OrderedMap({
+                [categoryId]: {
+                    id: categoryId,
+                    name: "Dummy",
+                    items: OrderedMap()
+                }
+            })
+        });
 
         const wrapper = mount(<Provider store={store}>
             <Category id={categoryId} name={"Dummy"}/>
