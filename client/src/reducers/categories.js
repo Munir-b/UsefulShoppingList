@@ -154,6 +154,66 @@ function startEditingCategory(state, categoryId) {
     }
 }
 
+function cancelEditingItem(state, categoryId, id) {
+    console.log("cancelEditingItem")
+    let categories = state.categories;
+
+    let category = categories.get(categoryId);
+
+    if (category) {
+        let item = category.items.get(id);
+
+        if (item) {
+            item.editing = false;
+
+            category.items = category.items.set(id, item);
+            categories = categories.set(categoryId, category);
+        }
+        else {
+            console.log("No such item", id)
+        }
+    }
+    else {
+        console.log("No such category", categoryId)
+    }
+
+    return {
+        ...state,
+        currentlyEditing: {},
+        categories: categories
+    }
+}
+
+
+function startEditingItem(state, categoryId, id) {
+    let categories = state.categories;
+
+    let category = categories.get(categoryId);
+
+    if (category) {
+        let item = category.items.get(id);
+
+        if (item) {
+            item.editing = true;
+            item.temporaryName = item.name;
+            category.items = category.items.set(id, item);
+            categories = categories.set(categoryId, category);
+        }
+        else {
+            console.warn("No such item", id)
+        }
+    }
+    else {
+        console.warn("No such category", categoryId)
+    }
+
+    return {
+        ...state,
+        currentlyEditing: {categoryId, id},
+        categories: categories
+    }
+}
+
 function cancelEditingCategory(state) {
     return {
         ...state,
@@ -174,6 +234,59 @@ function storeCategoryName(state, categoryId, name) {
         })
     }
 }
+
+function storeItemName(state, categoryId, id, name) {
+    let categories = state.categories;
+    let category = categories.get(categoryId);
+
+    if (category) {
+        let item = category.items.get(id);
+        if (item) {
+            item.temporaryName = name;
+            category.items = category.items.set(id, item);
+            categories = categories.set(categoryId, category);
+        }
+        else {
+            console.log("Item not found", id);
+        }
+    }
+    else {
+        console.log("Category not found", categoryId);
+    }
+    return {
+        ...state,
+        categories: categories
+    }
+}
+
+function saveItemName(state, categoryId, id, name) {
+    let categories = state.categories;
+    let category = categories.get(categoryId);
+
+    if (category) {
+        let item = category.items.get(id);
+        if (item) {
+            item.name = name;
+            item.temporaryName = "";
+            item.editing = false;
+            category.items = category.items.set(id, item);
+            categories = categories.set(categoryId, category);
+        }
+        else {
+            console.log("Item not found", id);
+        }
+    }
+    else {
+        console.log("Category not found", categoryId);
+    }
+    return {
+        ...state,
+        currentlyEditing: {},
+        categories: categories
+    }
+}
+
+
 
 function storeNewItemName(state, categoryId, name) {
     return {
@@ -286,6 +399,14 @@ export default function categories(state = initialState, action = {type: ""}) {
             return addItem(state, action.categoryId, action.name);
         case types.STORE_NEW_ITEM_NAME:
             return storeNewItemName(state, action.categoryId, action.name);
+        case types.STORE_ITEM_NAME:
+            return storeItemName(state, action.categoryId, action.id, action.name);
+        case types.CANCEL_EDITING_ITEM:
+            return cancelEditingItem(state, action.categoryId, action.id);
+        case types.SAVE_ITEM_NAME:
+            return saveItemName(state, action.categoryId, action.id, action.name);
+        case types.START_EDITING_ITEM:
+            return startEditingItem(state, action.categoryId, action.id)
         default:
             return state;
     }

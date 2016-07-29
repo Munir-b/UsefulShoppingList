@@ -103,3 +103,34 @@ export function toggleItem(categoryId, id) {
         id
     }
 }
+
+export function cancelEditingItem(categoryId, id) {
+    return {
+        type: types.CANCEL_EDITING_ITEM,
+        categoryId,
+        id
+    }
+}
+
+export function storeItemName(categoryId, id, name) {
+    return {
+        type: types.STORE_ITEM_NAME,
+        categoryId,
+        id,
+        name
+    }
+}
+
+export function saveItemName(categoryId, id, name) {
+    return {
+        type: types.SAVE_ITEM_NAME,
+        categoryId, id, name
+    }
+}
+
+export function startEditingItem(categoryId, id) {
+    return {
+        type: types.START_EDITING_ITEM,
+        categoryId, id
+    }
+}

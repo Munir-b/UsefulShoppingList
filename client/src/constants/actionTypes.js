@@ -21,3 +21,11 @@ export const SAVE_CATEGORY_NAME = "SAVE_CATEGORY_NAME";
 export const REMOVE_ITEM = "REMOVE_ITEM";
 
 export const ADD_ITEM = "ADD_ITEM";
+
+export const CANCEL_EDITING_ITEM = "CANCEL_EDITING_ITEM"
+
+export const STORE_ITEM_NAME = "STORE_ITEM_NAME"
+
+export const SAVE_ITEM_NAME = "SAVE_ITEM_NAME";
+
+export const START_EDITING_ITEM = "START_EDITING_ITEM"
